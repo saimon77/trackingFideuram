@@ -58,6 +58,9 @@ public class OprServiceImpl implements OprService {
 	private final String PREVIDENZA = "PREVIDENZA";
 	private final String VITA = "VITA";
 
+	private static final List<Integer> inLogic = Arrays.asList(2, 3, 5, 15, 16, 17, 18, 19, 22, 23, 24, 27, 28, 29, 30,
+			32, 33);
+
 	@Autowired
 	private DaoOpr dao;
 
@@ -87,22 +90,28 @@ public class OprServiceImpl implements OprService {
 	}
 
 	private void aggiornaStatiUltima(List<Operazione> listOpr) throws Exception {
+		if(listOpr==null)
+			return;
 		for (Operazione opr : listOpr) {
-			int tipoOperazione = opr.getTipoOperazioneTrackingID();
 			for (String cat : opr.getCategorie().keySet()) {
 				for (Elaborazione elab : opr.getCategorie().get(cat)) {
-					String dataRic=null;
-					if(elab.getDataRichiesta()!=null)
-					 dataRic=new SimpleDateFormat("yyyy-MM-dd").format(elab.getDataRichiesta());
-					List<Operazione> listOprDettaglio = getDettaglioElaborazione(
-							elab.getContraente(), elab.getTipoCategoria(), 
-							elab.getTipoSottoCategoria(), elab.getPolizza(),
-							elab.getNumeroPratica(), dataRic);
+					String dataRic = null;
+					if (elab.getDataRichiesta() != null)
+						dataRic = new SimpleDateFormat("yyyy-MM-dd").format(elab.getDataRichiesta());
+					String numPratica = elab.getNumeroPratica();
+					if (inLogic.contains(opr.getTipoOperazioneTrackingID())) {
+						numPratica = null;
+					} else {
+						dataRic = null;
+					}
+					List<Operazione> listOprDettaglio = getDettaglioElaborazione(elab.getContraente(),
+							elab.getTipoCategoria(), elab.getTipoSottoCategoria(), elab.getPolizza(),
+							numPratica, dataRic);
 					for (Operazione oprDet : listOprDettaglio) {
-						if(opr.getTipoOperazioneTrackingID()==oprDet.getTipoOperazioneTrackingID()) {
+						if (opr.getTipoOperazioneTrackingID() == oprDet.getTipoOperazioneTrackingID()) {
 							for (String catDett : oprDet.getCategorie().keySet()) {
 								for (Elaborazione elabDett : oprDet.getCategorie().get(catDett)) {
-									if(elab.getElaborazioneID()==elabDett.getElaborazioneID()) {
+									if (elab.getElaborazioneID() == elabDett.getElaborazioneID()) {
 										elab.setElencoStatiOperazione(elabDett.getElencoStatiOperazione());
 										break;
 									}
@@ -112,7 +121,7 @@ public class OprServiceImpl implements OprService {
 						}
 						break;
 					}
-					
+
 				}
 			}
 		}
@@ -290,13 +299,16 @@ public class OprServiceImpl implements OprService {
 
 	public List<Operazione> getDettaglioElaborazione(String cf, String categoria, String sottoCategoria, String polizza,
 			String numeroPratica, String dataRichiesta) throws Exception {
+		logger.info(String.format("getDettaglio %s - %s - %s - %s - %s - %s", cf, categoria, sottoCategoria, polizza,
+				numeroPratica, dataRichiesta));
 		List<Elaborazione> listElab = dao.getDettaglioElaborazione(cf, categoria, sottoCategoria, polizza,
 				numeroPratica, dataRichiesta);
+		aggiornaPagamaneto(listElab);
 		List<Operazione> listOpr = null;
 		if (listElab != null && listElab.size() > 0) {
 			inserisciAggiornate(listElab, cf);
 			listOpr = mappingOpr(listElab);
-//			listOpr = arricchisciUltima(op);
+			listOpr = arricchisciUltima(listOpr);
 		}
 		return listOpr;
 	}
@@ -325,29 +337,69 @@ public class OprServiceImpl implements OprService {
 		logger.info("terminato aggiornamento pratiche trovate");
 	}
 
+	private List<Operazione> arricchisciUltima(List<Operazione> opr) {
+		logger.info("inizio arricchimento ultima pratica");
+		List<Operazione> resp = new ArrayList<Operazione>();
+		if (opr != null) {
+			for (Operazione op : opr) {
+
+				// ordino la lista per mettere solo l'ultima elaborazione e poi aggiornare i
+				// campi data per gli stati
+				for (String tipo : op.getCategorie().keySet()) {
+
+					Collections.sort(op.getCategorie().get(tipo), new Comparator<Elaborazione>() {
+
+						public int compare(Elaborazione o1, Elaborazione o2) {
+							return o1.getElaborazioneID() - o2.getElaborazioneID();
+						}
+					});
+
+					List<Elaborazione> oldList = Arrays.asList(new Elaborazione[op.getCategorie().get(tipo).size()]);
+					Collections.copy(oldList, op.getCategorie().get(tipo));
+					List<Elaborazione> lista = op.getCategorie().get(tipo);
+					lista.clear();
+					lista.add(oldList.get(oldList.size() - 1));
+
+					for (Elaborazione ela : oldList) {
+						for (TipoStato stato : ela.getElencoStatiOperazione()) {
+							if (stato.getId() == ela.getStatoID()) {
+								stato.setData(ela.getDataEstrazione());
+								stato.setInfo(ela.getDescrizioneStatoElaborazione());
+								continue;
+							}
+						}
+					}
+					resp.add(op);
+				}
+			}
+		}
+		logger.info("terimnato arricchimento ultima pratica");
+		return resp;
+
+	}
 //	private List<Operazione> arricchisciUltima(List<Operazione> opr) {
 //		logger.info("inizio arricchimento ultima pratica");
 //		List<Operazione> resp = new ArrayList<Operazione>();
 //		if (opr != null) {
 //			for (Operazione op : opr) {
-//
+//				
 //				// ordino la lista per mettere solo l'ultima elaborazione e poi aggiornare i
 //				// campi data per gli stati
 //				for (String tipo : op.getCategorie().keySet()) {
-//
+//					
 //					Collections.sort(op.getCategorie().get(tipo), new Comparator<Elaborazione>() {
-//
+//						
 //						public int compare(Elaborazione o1, Elaborazione o2) {
 //							return o1.getElaborazioneID() - o2.getElaborazioneID();
 //						}
 //					});
-//
+//					
 //					List<Elaborazione> oldList = Arrays.asList(new Elaborazione[op.getCategorie().get(tipo).size()]);
 //					Collections.copy(oldList, op.getCategorie().get(tipo));
 //					List<Elaborazione> lista = op.getCategorie().get(tipo);
 //					lista.clear();
 //					lista.add(oldList.get(oldList.size() - 1));
-//
+//					
 //					for (Elaborazione ela : oldList) {
 //						for (TipoStato stato : op.getElencoStatiOperazione()) {
 //							if (stato.getId() == ela.getStatoID()) {
@@ -363,7 +415,7 @@ public class OprServiceImpl implements OprService {
 //		}
 //		logger.info("terimnato arricchimento ultima pratica");
 //		return resp;
-//
+//		
 //	}
 
 	private List<Operazione> arricchisciUltimaElab(List<Operazione> opr) {
