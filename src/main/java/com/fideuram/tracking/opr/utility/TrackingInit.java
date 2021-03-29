@@ -34,7 +34,7 @@ public class TrackingInit {
 
 	
 	public String init() {
-		LOGGER.info("Inizializzo il context");
+		LOGGER.info("Inizializzo il context v1");
 		
 		LOGGER.info("provo le configurazione esterne tramite SystemProperties");
 		String externaPath = System.getProperty("trackExternal");
