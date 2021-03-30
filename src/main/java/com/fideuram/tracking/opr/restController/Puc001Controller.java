@@ -92,9 +92,9 @@ public class Puc001Controller {
 	public @ResponseBody RespElaborazione detailOpr(@RequestParam(required = false) String cf,
 			@RequestParam(required = false) String categoria, @RequestParam(required = false) String sottoCategoria,
 			@RequestParam(required = false) String numeroPratica, @RequestParam String polizza,
-			@RequestParam(required = false) String dataRichiesta) {
+			@RequestParam(required = false) String dataRichiesta,@RequestParam int tipoOperazioneTrackingID) {
 		logger.info("ricevuta richiesta DetailOpr con " + cf + " - " + " - " + polizza + " - " + dataRichiesta + " - "
-				+ categoria + " - " + sottoCategoria);
+				+ categoria + " - " + sottoCategoria + " - "+tipoOperazioneTrackingID);
 		RespElaborazione resp;
 //		if(!isOk(numeroPratica,categoria,sottoCategoria)){
 //			resp = new RespElaborazione();
@@ -115,7 +115,7 @@ public class Puc001Controller {
 		resp = new RespElaborazione();
 		try {
 			objResp = serv.getDettaglioElaborazione(cf, categoria, sottoCategoria, polizza, numeroPratica,
-					dataRichiesta);
+					dataRichiesta, tipoOperazioneTrackingID);
 		} catch (Exception e) {
 			resp.setErrorMessage("ATTENZIONE Errore nel recupero dati: " + e.getMessage());
 			logger.error(e.getMessage(),e);

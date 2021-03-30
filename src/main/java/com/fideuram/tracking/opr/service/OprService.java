@@ -14,7 +14,7 @@ public interface OprService {
 	
 	public List<Operazione>  getUltimeElaborazioni(String polizza,String cf,String categoria,String sottoCategoria) throws Exception;
 	
-	public List<Operazione> getDettaglioElaborazione(String cf,String categoria,String sottoCategoria,String polizza,String numeroPratica,String dataRichiesta) throws Exception;
+	public List<Operazione> getDettaglioElaborazione(String cf,String categoria,String sottoCategoria,String polizza,String numeroPratica,String dataRichiesta,int tipoOperazioneTrackingID) throws Exception;
 
 	public boolean updateLastView(String cf) throws Exception;
 	

@@ -17,7 +17,7 @@ public interface DaoOpr {
 	
 	public List<Elaborazione> getUltimeElaborazioni(String numeroPratica,String cf,String categoria,String sottoCategoria) throws Exception;
 
-	public List<Elaborazione> getDettaglioElaborazione(String cf,String categoria,String sottoCategoria,String polizza,String numeroPratica,String dataRichiesta) throws Exception;
+	public List<Elaborazione> getDettaglioElaborazione(String cf,String categoria,String sottoCategoria,String polizza,String numeroPratica,String dataRichiesta,int tipoOperazioneTrackingID) throws Exception;
 
 	public boolean updateLastView(String cf) throws Exception;
 	

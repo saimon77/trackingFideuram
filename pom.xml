@@ -13,12 +13,21 @@
 		<log4j.version>1.2.16</log4j.version>
 		<!-- Drivers JDBC -->
 		<jtds.version>1.2.4</jtds.version>
-		<mysql_connector.version>5.1.13</mysql_connector.version>
+<!-- 		<mysql_connector.version>5.1.13</mysql_connector.version> -->
+		<mysql_connector.version>8.4.1.jre8</mysql_connector.version>
 
 		<puc.version>3.19.24-RELEASE</puc.version>
 
 	</properties>
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>${mysql_connector.version}</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

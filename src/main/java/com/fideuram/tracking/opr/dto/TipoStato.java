@@ -10,6 +10,7 @@ public class TipoStato {
 	private boolean visibile;
 	private Date data;
 	private String info;
+	private String canale;
 	public int getId() {
 		return id;
 	}
@@ -45,6 +46,12 @@ public class TipoStato {
 	}
 	public void setInfo(String info) {
 		this.info = info;
+	}
+	public String getCanale() {
+		return canale;
+	}
+	public void setCanale(String canale) {
+		this.canale = canale;
 	}
 	
 	

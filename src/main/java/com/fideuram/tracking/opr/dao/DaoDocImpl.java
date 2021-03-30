@@ -34,7 +34,7 @@ public class DaoDocImpl extends DaoAbstract implements DaoDoc {
 		PreparedStatement st = null;
 		List<Documento> list = null;
 		try {
-			conn = getConnection(prop.getProperty(Constant.PROD_URL),prop.getProperty(Constant.PROD_USER),prop.getProperty(Constant.PROD_PWD));
+			conn = getConnection(prop.getProperty(Constant.PROD_URL),prop.getProperty(Constant.PROD_USER),prop.getProperty(Constant.PROD_PWD),prop.getProperty(Constant.PROD_CLASS_NAME));
 			st = conn.prepareStatement("select pl.n_pratica,d.c_documento,d.descrizione from dbo.PraticaLiquidazione as pl\r\n"
 					+ "	join dbo.DocumentoPraticaLiquidazione as dpl on dpl.c_tipo_liquidazione=pl.c_tipo_liquidazione\r\n"
 					+ "	join dbo.Documento as d on d.c_documento=dpl.c_documento\r\n"
@@ -79,7 +79,7 @@ public class DaoDocImpl extends DaoAbstract implements DaoDoc {
 		PreparedStatement st = null;
 		List<Documento> list = null;
 		try {
-			conn = getConnection(prop.getProperty(Constant.PROD_URL),prop.getProperty(Constant.PROD_USER),prop.getProperty(Constant.PROD_PWD));
+			conn = getConnection(prop.getProperty(Constant.PROD_URL),prop.getProperty(Constant.PROD_USER),prop.getProperty(Constant.PROD_PWD),prop.getProperty(Constant.PROD_CLASS_NAME));
 			st = conn.prepareStatement("select dp.n_pratica,d.c_documento,d.descrizione from dbo.DocumentoPratica as dp \r\n"
 					+ "	join dbo.Documento as d on d.c_documento=dp.c_documento\r\n"
 					+ "where dp.n_pratica=?");

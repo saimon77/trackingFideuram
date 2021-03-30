@@ -106,7 +106,9 @@ public class OprServiceImpl implements OprService {
 					}
 					List<Operazione> listOprDettaglio = getDettaglioElaborazione(elab.getContraente(),
 							elab.getTipoCategoria(), elab.getTipoSottoCategoria(), elab.getPolizza(),
-							numPratica, dataRic);
+							numPratica, dataRic,elab.getTipoOperazioneTrackingID());
+					if(listOprDettaglio==null)
+						continue;
 					for (Operazione oprDet : listOprDettaglio) {
 						if (opr.getTipoOperazioneTrackingID() == oprDet.getTipoOperazioneTrackingID()) {
 							for (String catDett : oprDet.getCategorie().keySet()) {
@@ -298,11 +300,11 @@ public class OprServiceImpl implements OprService {
 	}
 
 	public List<Operazione> getDettaglioElaborazione(String cf, String categoria, String sottoCategoria, String polizza,
-			String numeroPratica, String dataRichiesta) throws Exception {
+			String numeroPratica, String dataRichiesta,int tipoOperazioneTrackingID) throws Exception {
 		logger.info(String.format("getDettaglio %s - %s - %s - %s - %s - %s", cf, categoria, sottoCategoria, polizza,
 				numeroPratica, dataRichiesta));
 		List<Elaborazione> listElab = dao.getDettaglioElaborazione(cf, categoria, sottoCategoria, polizza,
-				numeroPratica, dataRichiesta);
+				numeroPratica, dataRichiesta,tipoOperazioneTrackingID);
 		aggiornaPagamaneto(listElab);
 		List<Operazione> listOpr = null;
 		if (listElab != null && listElab.size() > 0) {
@@ -365,6 +367,7 @@ public class OprServiceImpl implements OprService {
 							if (stato.getId() == ela.getStatoID()) {
 								stato.setData(ela.getDataEstrazione());
 								stato.setInfo(ela.getDescrizioneStatoElaborazione());
+								stato.setCanale(ela.getCanale());
 								continue;
 							}
 						}
@@ -446,6 +449,7 @@ public class OprServiceImpl implements OprService {
 							if (stato.getId() == ela.getStatoID()) {
 								stato.setData(ela.getDataEstrazione());
 								stato.setInfo(ela.getDescrizioneStatoElaborazione());
+								stato.setCanale(ela.getCanale());
 								continue;
 							}
 						}

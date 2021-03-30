@@ -48,7 +48,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		List<Elaborazione> list = null;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			if (polizza!=null) {
 				logger.info("getUltimeElaborazioni caso 1");
 				st = conn.prepareStatement( "select et.* ,topr.*,st.*, null stato_precedente,rel.Ordine,rel.isVisibile,ob.PercentualeBeneficio as Perc_beneficio "
@@ -71,14 +71,6 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 								+ "		 join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID  "
 								+ "		 join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
 								+ "	where UPPER(et.Contraente)=?  "
-//						+ "	union select et.* ,topr.*,st.*,sp.maxStato as stato_precedente, rel.Ordine,rel.isVisibile,ob.PercentualeBeneficio "
-//						+ "	from puc001.TRK_ElaborazioneTracking_FE as et  "
-//						+ "		 left join puc001.TRK_Operazioni_Beneficiari as ob on ob.polizzaID=et.polizza and ob.OperazioneID=et.TipoOperazioneTrackingiD "
-//						+ "	      left join puc001.TRK_StatoPrecedete sp on (et.TipoOperazioneTrackingiD in ('2','3','5','15','16','17','18','19','22','23','24','27','28','29','30','32','33') and sp.Polizza=et.Polizza and sp.idOP=et.TipoOperazioneTrackingiD and  et.DataRichiesta=sp.DataRichiesta) or (et.TipoOperazioneTrackingiD not in ('2','3','5','15','16','17','18','19','22','23','24','27','28','29','30','32','33') and sp.Polizza=et.Polizza and sp.idOP=et.TipoOperazioneTrackingiD and et.NumeroPratica=sp.NumeroPratica)"
-//						+ "		  join puc001.TRK_TipoOperazioneTracking as topr on topr.OperazioneID=et.TipoOperazioneTrackingiD "
-//						+ "		  join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID "
-//						+ "		  join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
-//						+ "	where UPPER(et.Contraente)=?"
 				);
 
 				st.setString(1, cf.toUpperCase());
@@ -94,14 +86,6 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 								+ "		 join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID  "
 								+ "		 join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
 								+ "	where UPPER(et.Contraente)=? and UPPER(topr.TipoCategoria)=? and UPPER(topr.TipoSottoCategoria)=? "
-//					+ "	union select et.* ,topr.*,st.*,sp.maxStato as stato_precedente, rel.Ordine,rel.isVisibile,ob.PercentualeBeneficio "
-//					+ "	from puc001.TRK_ElaborazioneTracking_FE as et  "
-//					+ "		 left  join puc001.TRK_Operazioni_Beneficiari as ob on ob.polizzaID=et.polizza and ob.OperazioneID=et.TipoOperazioneTrackingiD "
-//					+ "	      left join puc001.TRK_StatoPrecedete sp on (et.TipoOperazioneTrackingiD in ('2','3','5','15','16','17','18','19','22','23','24','27','28','29','30','32','33') and sp.Polizza=et.Polizza and sp.idOP=et.TipoOperazioneTrackingiD and  et.DataRichiesta=sp.DataRichiesta) or (et.TipoOperazioneTrackingiD not in ('2','3','5','15','16','17','18','19','22','23','24','27','28','29','30','32','33') and sp.Polizza=et.Polizza and sp.idOP=et.TipoOperazioneTrackingiD and et.NumeroPratica=sp.NumeroPratica)"
-//					+ "		  join puc001.TRK_TipoOperazioneTracking as topr on topr.OperazioneID=et.TipoOperazioneTrackingiD "
-//					+ "		  join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID "
-//					+ "		  join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
-//					+ "	where UPPER(et.Contraente)=? and UPPER(topr.TipoCategoria)=? and UPPER(topr.TipoSottoCategoria)=?"
 				);
 
 				st.setString(1, cf.toUpperCase());
@@ -174,13 +158,13 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 
 //storico
 	public List<Elaborazione> getDettaglioElaborazione(String cf, String categoria, String sottoCategoria,
-			String polizza, String numeroPratica, String dataRichiesta) throws Exception {
+			String polizza, String numeroPratica, String dataRichiesta,int tipoOperazioneTrackingID) throws Exception {
 		Connection conn = null;
 		PreparedStatement st = null;
 		List<Elaborazione> list = null;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			String sql = "";
 			if (categoria == null && sottoCategoria == null && numeroPratica != null) {
 				logger.info("getDettaglioElaborazione caso 1");
@@ -191,14 +175,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 						+ "		join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID  "
 						+ "		join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
 						+ "	where UPPER(et.Contraente)=?  and et.Polizza=? "
-						+ (numeroPratica != null ? "and et.NumeroPratica=? " : "and et.DataRichiesta=? "
-//						+ "union " + "select et.* ,topr.*,st.*, rel.Ordine,rel.isVisibile,ob.PercentualeBeneficio "
-//						+ "	from puc001.TRK_ElaborazioneTracking as et  "
-//						+ "	left join puc001.TRK_Operazioni_Beneficiari as ob on ob.polizzaID=et.polizza and ob.OperazioneID=et.TipoOperazioneTrackingiD "
-//						+ "		 join puc001.TRK_TipoOperazioneTracking as topr on topr.OperazioneID=et.TipoOperazioneTrackingiD "
-//						+ "		 join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID "
-//						+ "		 join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
-//						+ "	where UPPER(et.Contraente)=?  and et.Polizza=? "+ (numeroPratica!=null?"and et.NumeroPratica=?":"and et.DataRichiesta=?"
+						+ (numeroPratica != null ? "and et.NumeroPratica=? " : "and et.DataRichiesta=? and et.TipoOperazioneTrackingID=?"
 						);
 				st = conn.prepareStatement(sql);
 				st.setString(1, cf.toUpperCase());
@@ -207,12 +184,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 					st.setString(3, numeroPratica);
 				else
 					st.setString(3, dataRichiesta);
-//				st.setString(4, cf.toUpperCase());
-//				st.setString(5, polizza);
-//				if(numeroPratica!=null)
-//					st.setString(6, numeroPratica);
-//				else
-//					st.setString(6, dataRichiesta);
+				st.setInt(3, tipoOperazioneTrackingID);
 			} else if (categoria == null && sottoCategoria == null && numeroPratica == null && dataRichiesta == null
 					&& cf == null) {
 				logger.info("getDettaglioElaborazione caso 2");
@@ -222,18 +194,11 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 						+ "		join puc001.TRK_TipoOperazioneTracking as topr on topr.OperazioneID=et.TipoOperazioneTrackingiD "
 						+ "		join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID  "
 						+ "		join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
-						+ "	where   et.Polizza=?  "
-//							+ "union " + "select et.* ,topr.*,st.*, rel.Ordine,rel.isVisibile,ob.PercentualeBeneficio "
-//							+ "	from puc001.TRK_ElaborazioneTracking as et  "
-//							+ "	left join puc001.TRK_Operazioni_Beneficiari as ob on ob.polizzaID=et.polizza and ob.OperazioneID=et.TipoOperazioneTrackingiD "
-//							+ "		 join puc001.TRK_TipoOperazioneTracking as topr on topr.OperazioneID=et.TipoOperazioneTrackingiD "
-//							+ "		 join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID "
-//							+ "		 join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
-//							+ "	where  et.Polizza=? "
+						+ "	where   et.Polizza=?   and et.TipoOperazioneTrackingID=?"
 				;
 				st = conn.prepareStatement(sql);
 				st.setString(1, polizza);
-//					st.setString(2, polizza);
+				st.setInt(2, tipoOperazioneTrackingID);
 
 			} else {
 				logger.info("getDettaglioElaborazione caso 3");
@@ -244,17 +209,8 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 						+ "	    join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID  "
 						+ "		join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
 						+ "	where UPPER(et.Contraente)=? and UPPER(topr.TipoCategoria)=? and UPPER(topr.TipoSottoCategoria)=? and et.Polizza=? "
-						+ (numeroPratica != null ? "and et.NumeroPratica=?" : "and et.DataRichiesta=? "
-//							) + "union "
-//						+ "select et.* ,topr.*,st.*, rel.Ordine,rel.isVisibile,ob.PercentualeBeneficio "
-//						+ "	from puc001.TRK_ElaborazioneTracking as et  "
-//						+ "	left join puc001.TRK_Operazioni_Beneficiari as ob on ob.polizzaID=et.polizza and ob.OperazioneID=et.TipoOperazioneTrackingiD "
-//						+ "		 join puc001.TRK_TipoOperazioneTracking as topr on topr.OperazioneID=et.TipoOperazioneTrackingiD "
-//						+ "		 join puc001.TRK_TipoStatoTracking st on et.TipoStatoTrackingID=st.StatoID "
-//						+ "		 join puc001.TRK_RelStatiOperazione as rel on rel.TipoOperazioneTrackingiD=et.TipoOperazioneTrackingiD and rel.TipoStatoTrackingID=et.TipoStatoTrackingID "
-//						+ "	where UPPER(et.Contraente)=? and UPPER(topr.TipoCategoria)=? and UPPER (topr.TipoSottoCategoria)=? and et.Polizza=? "
-//						+ (numeroPratica != null ? "and et.NumeroPratica=?" : "and et.DataRichiesta=?"
-							);
+						+ (numeroPratica != null ? "and et.NumeroPratica=?" : "and et.DataRichiesta=?  "
+							)+" and et.TipoOperazioneTrackingID=?";
 				st = conn.prepareStatement(sql);
 				st.setString(1, cf.toUpperCase());
 				st.setString(2, categoria.toUpperCase());
@@ -264,14 +220,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 					st.setString(5, numeroPratica);
 				else
 					st.setString(5, dataRichiesta);
-//				st.setString(6, cf.toUpperCase());
-//				st.setString(7, categoria.toUpperCase());
-//				st.setString(8, sottoCategoria.toUpperCase());
-//				st.setString(9, polizza);
-//				if (numeroPratica != null)
-//					st.setString(10, numeroPratica);
-//				else
-//					st.setString(10, dataRichiesta);
+				st.setInt(6, tipoOperazioneTrackingID);
 			}
 			boolean executeUpdate = st.execute();
 			if (executeUpdate) {
@@ -340,7 +289,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		boolean resp = false;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement("IF EXISTS (select * from puc001.TRK_LastView cf where cf=?) "
 					+ "update puc001.TRK_LastView set lastView=CURRENT_TIMESTAMP  where cf=? " + "ELSE "
 					+ "INSERT into  puc001.TRK_LastView (cf,lastView) values(?,CURRENT_TIMESTAMP) ");
@@ -372,7 +321,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		Timestamp resp = null;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement("select * from  puc001.TRK_LastView where cf=?");
 			st.setString(1, cf.toUpperCase());
 
@@ -408,7 +357,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		TipoStato tipoStato = null;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement("select rs.*,ts.Stato as descrizione from  puc001.TRK_RelStatiOperazione as rs "
 					+ "	join puc001.TRK_TipoStatoTracking as ts on ts.StatoID=rs.TipoStatoTrackingID");
 
@@ -475,7 +424,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		boolean resp = false;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement(
 					"insert into puc001.TRK_DOCSENT (Contraente,polizza,nomeFile,fileUpload,utente) values(?,?,?,?,?)");
 
@@ -512,7 +461,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		Agenda resp = null;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement(
 					"select lv.lastView as data_ultimo_accesso,count(*) as tot_doc_movimentati from TRK_LastView  lv "
 							+ "left join TRK_ElaborazioneTracking et on et.Contraente=lv.cf "
@@ -556,7 +505,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		List<Beneficiario> resp = new ArrayList<Beneficiario>();
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement(
 					"select bd.polizzaID,tcb.Descrizione as tipologia_beneficiario, tb.Descrizione,bd.* from BeneficiarioDettaglio  bd "
 							+ "join TipoBeneficiario tb on bd.TipoBeneficiarioID=tb.id "
@@ -624,7 +573,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		List<ReferenteTerzo> resp = new ArrayList<ReferenteTerzo>();
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement("select * from ReferenteAmministrativo r " + "where polizzaID=? "
 					+ "and getdate() between r.DataInizio and r.DataFine");
 			st.setString(1, polizza);
@@ -675,7 +624,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		boolean resp = false;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement(
 					"INSERT into  puc001.TRK_ReferenteHistory (numReferente,tipo_modifica,utente_mod) values(?,?,?)");
 			st.setInt(1, ref.getNumReferente());
@@ -707,7 +656,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		boolean resp = false;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 			st = conn.prepareStatement(
 					"INSERT into  puc001.TRK_BeneficiarioHistory (id_beneficiario,tipo_modifica,utente_mod) values(?,?,?)");
 			st.setInt(1, ben.getiD());
@@ -743,7 +692,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		// inserisco su puc
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 
 			st = conn.prepareStatement(
 					"insert into ReferenteAmministrativo (polizzaID, numReferente, dataInizio, dataFine, codFiscale, cognome, nome, indirizzo, cap,  localita, provincia, nazione, TIMESTAMP) values (?, ?, getDate(), '2050-12-31 00:00:00', ?, ?, ?, ?, ?, ? ,?,?, getDate())");
@@ -796,7 +745,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		// inserisco su puc
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 
 			st = conn.prepareStatement(
 					"update ReferenteAmministrativo set dataFine=getDate() where polizzaID = ? and dataFine='2050-12-31 00:00:00'");
@@ -838,7 +787,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		// inserisco su puc
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 
 			st = conn
 					.prepareStatement("select p.ID,p.contraenteID,a.Nome,a.Cognome,a.ragioneSociale from polizza p \r\n"
@@ -884,7 +833,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		// inserisco su puc
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 
 			st = conn.prepareStatement(
 					"select p.ID,p.primoAssicuratoID,a.Nome,a.Cognome,a.ragioneSociale from polizza p \r\n"
@@ -929,7 +878,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		int resp = 0;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 
 			st = conn.prepareStatement("select * from puc001.TRK_DOCSENT where contraente=? and polizza=?");
 
@@ -968,7 +917,7 @@ public class DaoOprImpl extends DaoAbstract implements DaoOpr {
 		Pagamento resp = null;
 		try {
 			conn = getConnection(prop.getProperty(Constant.PUC_URL), prop.getProperty(Constant.PUC_USER),
-					prop.getProperty(Constant.PUC_PWD));
+					prop.getProperty(Constant.PUC_PWD),prop.getProperty(Constant.PUC_CLASS_NAME));
 
 			st = conn.prepareStatement("select Sum(ImportoNetto) ImportoNetto from puc001.Pagamento  where NumeroPolizza=? and numeroPratica=? and anagraficaID=? ");
 
